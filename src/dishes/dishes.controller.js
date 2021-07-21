@@ -24,6 +24,79 @@ function createDish(req, res) {
 function validateDishBody(req, res, next) {
     const { data: { name, description, price, image_url } = {} } = req.body;
     let message;
+    if (!name || name === "") {
+        message = "Dish must include a name";
+    } else if (!description || description === "") {
+        message = "Dish must include a description";
+    } else if (!price) {
+        message = "Dish must include a price";
+    } else if (price < - 0 || !Number.isInteger(price)) {
+        message = "Dish must have a price that is an number greater than 0";
+    } else if (!image_url || image_url === "") {
+        message = "Dish must include an image"
+    }
 
-    
+    if (message) {
+        return next({
+            status: 400,
+            message: message,
+        });
+    }
+
+    next();
+}
+
+function getDish(req, res) {
+    res.json({ data: res.locals.dish});
+}
+
+function validateDishId(req, res, next) {
+    const { dishId } = req.params;
+    const foundDish = dishes.find((dish) => dish.id === dishId);
+
+    if (foundDish) {
+        res.locals.dish = foundDish;
+        return next();
+    }
+
+    next({
+        status: 404,
+        message: `Dish id does not exist ${dishId}`,
+    })
+}
+
+function updateDish(req, res) {
+    const { data: { name, description, price, image_url } = {} } = req.body;
+
+    res.locals.dish = {
+        id: res.locals.dishId,
+        name: name,
+        description: description,
+        price: price,
+        image_url: image_url,
+    };
+
+    res.json({ data: res.locals.dish });
+}
+
+function validateDishBodyId(req, res, next) {
+    const { dishId } = req.params;
+    const { data: { id } = {} } = req.body;
+
+    if (!id || id === dishId) {
+        res.lcoals.dishId = dishId;
+        return next();
+    }
+
+    next({
+        status: 400,
+        message: `Dish id doest not match route id. Dish: ${id}, Route: ${dishId}`
+    });
+}
+
+module.exports = {
+    listDishes, 
+    createDish: [validateDishBody, createDish],
+    getDish: [validateDishId, getDish],
+    updateDish: [validateDishId, validateDishBody, validateDishBodyId, updateDish],
 }
