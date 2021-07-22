@@ -32,9 +32,9 @@ function validateOrder(req, res, next) {
 
     let message;
     if (!deliverTo || deliverTo === "") {
-        message = "Order must include an address to deliver to";
+        message = "Order must include an address to deliverTo";
     } else if (!mobileNumber || mobileNumber === "") {
-        message = "Order must include a mobile number";
+        message = "Order must include a mobileNumber";
     } else if (!dishes) {
         message = "Order must include a dish";
     } else if (!Array.isArray(dishes) || dishes.length === 0) {
@@ -58,13 +58,13 @@ function validateOrder(req, res, next) {
     
 }
 
-function getOrder(req, res) {
+function getOrders(req, res) {
     res.json({ data: res.locals.order });
 }
 
 function validateOrderId(req, res, next) {
     const { orderId } = req.params;
-    const foundOrder = orderes.find((order) => order.id === orderId);
+    const foundOrder = orders.find((order) => order.id === orderId);
 
     if (foundOrder) {
         res.locals.order = foundOrder;
@@ -73,7 +73,7 @@ function validateOrderId(req, res, next) {
 
     next({
         status: 404,
-        message: `Order id does not exist: %{orderId}`,
+        message: `Order id does not exist: ${orderId}`,
     });
 }
 
@@ -133,7 +133,7 @@ function validateDelete(req, res, next) {
 module.exports = {
     listOrders,
     createOrder: [validateOrder, createOrder],
-    getOrder: [validateOrderId, getOrder],
+    getOrder: [validateOrderId, getOrders],
     updateOrder: [validateOrder, validateOrderId, validateStatus, updateOrder],
     deleteOrder: [validateOrderId, validateDelete, deleteOrder],
 }

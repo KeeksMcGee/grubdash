@@ -7,6 +7,10 @@ const dishes = require(path.resolve("src/data/dishes-data"));
 const nextId = require("../utils/nextId");
 
 // TODO: Implement the /dishes handlers needed to make the tests pass
+function listDishes(req, res) {
+    res.json({ data: dishes });
+}
+
 function createDish(req, res) {
     const { data: { name, description, price, image_url } = {} } = req.body;
     const newDish = {
@@ -30,10 +34,10 @@ function validateDishBody(req, res, next) {
         message = "Dish must include a description";
     } else if (!price) {
         message = "Dish must include a price";
-    } else if (price < - 0 || !Number.isInteger(price)) {
-        message = "Dish must have a price that is an number greater than 0";
+    } else if (price <= 0 || !Number.isInteger(price)) {
+        message = "Dish must have a price that is an integer greater than 0";
     } else if (!image_url || image_url === "") {
-        message = "Dish must include an image"
+        message = "Dish must include an image_url"
     }
 
     if (message) {
@@ -84,7 +88,7 @@ function validateDishBodyId(req, res, next) {
     const { data: { id } = {} } = req.body;
 
     if (!id || id === dishId) {
-        res.lcoals.dishId = dishId;
+        res.locals.dishId = dishId;
         return next();
     }
 
